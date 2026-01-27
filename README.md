@@ -9,12 +9,20 @@
 
 ## 项目介绍
 
+Ai编程助手 的“全家桶”配置仓库/插件：把常用的 agents（子代理）、skills（工作流技能）、slash commands（斜杠命令）、rules（规则约束）、hooks（事件钩子自动化）、以及 MCP server 配置示例集中在一起，提供一套可直接复用的工程化工作流。
 
-## 主要组成（仓库结构概览 + 参考清单）
+> README 的定位： —— 仓库提供的是配置与代码本体，配套指南负责讲清楚方法论与使用方式。
 
 ## 核心作用/解决什么问题
 
-## 目录内容介绍
+1. 把高频工程能力产品化：将规划、架构评审、代码评审、安全审查、TDD 等能力沉淀为可调用的 agents/skills/commands。
+2. 固化为流程：通过 rules + commands + hooks，将“先计划/先测试/再实现/再验证”的做事方式变成工具行为，而不是依赖使用者记忆。
+3. 减少跨项目迁移成本：提供一套通用的目录结构与可拷贝配置（手动安装）或插件安装方式（推荐）。
+4. 统一工具链与脚本习惯：内置包管理器选择/配置逻辑（自动探测），以及测试运行脚本与示例。
+
+## 主要组成（仓库结构概览 + 参考清单）
+
+> 说明：以下清单主要依据该仓库 README 与目录命名进行盘点，用于“我该什么时候用什么”的速查。若你需要更精确的行为细节，建议再打开对应 .md 文件看提示词/约束原文。
 
 ```
 surrogate/
@@ -29,7 +37,6 @@ surrogate/
 |   |-- code-reviewer.md     # Quality and security review
 |   |-- security-reviewer.md # Vulnerability analysis
 |   |-- build-error-resolver.md
-|   |-- e2e-runner.md        # Playwright E2E testing
 |   |-- refactor-cleaner.md  # Dead code cleanup
 |   |-- doc-updater.md       # Documentation sync
 |
@@ -83,11 +90,6 @@ surrogate/
 |   |   |-- evaluate-session.js  # Extract patterns from sessions
 |   |-- setup-package-manager.js # Interactive PM setup
 |
-|-- tests/            # Test suite (NEW)
-|   |-- lib/                     # Library tests
-|   |-- hooks/                   # Hook tests
-|   |-- run-all.js               # Run all tests
-|
 |-- contexts/         # 动态系统提示注入
 |   |-- dev.md              # Development mode context
 |   |-- review.md           # Code review mode context
@@ -102,11 +104,67 @@ surrogate/
 |
 |-- marketplace.json  # Self-hosted marketplace config (for /plugin marketplace add)
 ```
+### plugin/（插件包装）
 
 
-## hooks(钩子)
+### agents/（子代理：把任务委派给专职角色）
+| Agent 文件                    | 什么时候用                                        | 你会得到什么                                   |
+|------------------------------|----------------------------------------------|------------------------------------------|
+| planner.md                   | 需求不清晰、要做一个功能/改造，且涉及多步实现时                     | 分步骤实现计划、关键文件定位、风险点与验收口径                  |
+| architect.md                 | 需要做架构取舍（模块边界、扩展性、性能、技术选型）时                   | 设计方案、权衡点、建议的目录/接口形态                      |
+| tdd-guide.md                 | 想用 TDD 写新功能/修 bug（先测试后实现）时                   | 测试优先的落地步骤与覆盖率/边界用例建议                     |
+| code-reviewer.md             | 写完一段代码（提交/PR 前）想做质量审查时                       | 可维护性/一致性/潜在 bug/风格问题清单与修改建议              |
+| security-reviewer.md         | 涉及用户输入、鉴权、网络请求、文件处理、密钥/隐私数据时                 | OWASP 风险点、注入/越权/敏感信息等漏洞排查建议              |
+| build-error-resolver.md      | CI/本地 build 报错（TS/依赖/构建链路）时                  | 最小改动修复编译/构建错误、定位原因                       |
+| e2e-runner.md                | 关键用户路径需要端到端回归（Playwright）时                   | 生成/维护/执行 E2E 用例与产物（截图/trace 等）           |
+| refactor-cleaner.md          | 想删死代码、合并重复实现、降低维护成本时                         | 基于工具的死代码扫描与安全删改建议                        |
+| doc-updater.md               | 改了代码想同步文档/README/codemap 时                   | 更新文档、补齐使用说明/变更点                          |
 
-- Hook 事件类型
+
+### skills/（技能：把方法论沉淀成可复用流程）
+
+| Skill 目录                   | 适用场景（怎么选）                       | 覆盖内容                                  |
+|----------------------------|----------------------------------------|---------------------------------------|
+| coding-standards/          | 你希望团队/项目有一致的编码规范                       | TypeScript/JS/通用代码规范与最佳实践             |
+| backend-patterns/          | 做 API、服务端逻辑、数据库/缓存/队列等                 | 后端架构模式、API 设计、性能与可维护性建议               |
+| frontend-patterns/         | 做 React/Next.js UI、状态管理、性能优化           | 前端工程模式与常见坑位                           |
+| tdd-workflow/              | 想严格执行"测试先行"                            | TDD 流程、测试分层、覆盖率目标/策略                  |
+| security-review/           | 做安全评估/上线前安全检查                          | 安全检查清单、常见漏洞与修复建议                      |
+| strategic-compact/         | 上下文变长、模型开始"遗忘/跑偏"                      | 何时手动压缩、如何保留关键信息                       |
+| continuous-learning/       | 想把一次次会话产出沉淀成可复用模式                      | 从会话提炼规则/技能的流程（偏方法论）                   |
+| verification-loop/         | 想避免"说改好了但没验证"                          | 验证闭环（跑测试/检查输出/给证据）流程                  |
+| eval-harness/              | 需要做更系统的评估/回归框架                         | 会话/修改的评估方法与框架化建议                      |
+
+
+### commands/（斜杠命令：一键触发预设工作流）
+
+| Command 文件            | 适用场景                                      | 功能                             |
+|-----------------------|-----------------------------------------------|--------------------------------|
+| tdd.md                | 想用 TDD 写新功能/修 bug（先测试后实现）时                    | 测试优先的落地步骤与覆盖率/边界用例建议           |
+| plan.md               | 需求不清晰、要做一个功能/改造，且涉及多步实现时                      | 分步骤实现计划、关键文件定位、风险点与验收口径        |
+| e2e.md                | 关键用户路径需要端到端回归（Playwright）时                    | 生成/维护/执行 E2E 用例与产物（截图/trace 等） |
+| code-review.md        | 写完一段代码（提交/PR 前）想做质量审查时                        | 可维护性/一致性/潜在 bug/风格问题清单与修改建议    |
+| build-fix.md          | CI/本地 build 报错（TS/依赖/构建链路）时                   | 最小改动修复编译/构建错误、定位原因             |
+| refactor-clean.md     | 想删死代码、合并重复实现、降低维护成本时                          | 基于工具的死代码扫描与安全删改建议              |
+| learn.md              | 想从会话中提炼模式/技能时                                 | 从会话中提炼模式/技能的流程                 |
+| checkpoint.md         | 想保存当前验证状态时                                    | 保存验证状态                         |
+| verify.md             | 想运行验证循环时                                      | 运行验证循环                         |
+| setup-pm.md           | 想配置包管理器时                                      | 配置包管理器                         |
+
+
+### rules/（规则：常驻约束，限制助手行为）
+
+| Rule 文件              | 作用                  | 典型内容                        |
+|-----------------------|-----------------------|-----------------------------|
+| security.md           | 安全底线                  | 禁止泄漏密钥、避免注入/不安全操作等          |
+| coding-style.md       | 代码风格一致性               | 目录组织、命名、可读性等                |
+| testing.md            | 测试纪律                  | TDD/覆盖率目标/测试要求              |
+| git-workflow.md       | Git 流程规范              | 提交信息、分支/PR 习惯               |
+| agents.md             | 代理使用策略                | 何时委派、如何拆任务                  |
+| performance.md        | 性能与上下文管理              | 工具/模型选择、上下文窗口管理建议           |
+
+
+### hooks/ (钩子)
 
 | 事件类型           | 触发时机                                          | 典型用途                                           |
 |------------------|--------------------------------------------------|------------------------------------------------|
@@ -136,7 +194,7 @@ echo "Remote mode: $CLAUDE_CODE_REMOTE"
 
 ```
 
-## contexts        高级：动态系统提示注入
+### contexts        高级：动态系统提示注入
 不要只把所有内容放进 CLAUDE.md（用户范围）或“.claude/rules/”（项目范围），这些文件每次会话都会加载，而是用 CLI 标志动态注入上下文。
 
 ```bash
@@ -154,6 +212,11 @@ alias claude-review='claude --system-prompt "$(cat ~/.claude/contexts/review.md)
 # 研究/探索模式
 alias claude-research='claude --system-prompt "$(cat ~/.claude/contexts/research.md)"'
 ```
-## 参考资料
+
+### 安装/使用方式（README 提供的两种路线）
+
+### 参考资料
+* 工程理解： https://github.com/affaan-m/everything-claude-code 
+* 汉化 https://mp.weixin.qq.com/s/BkqigXb1ugP4IBjiwRAGOA
 * 上下文注入： https://x.com/affaanmustafa/status/2014040193557471352 
 * hooks机制详解： https://blog.csdn.net/qq_44810930/article/details/156146071
