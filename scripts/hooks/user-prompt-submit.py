@@ -4,6 +4,9 @@
 UserPromptSubmit Hook - 用户提交时触发，评估当前技能
 """
 
+import json
+import sys
+
 prompt = """## 指令：强制技能激活流程(必须执行)
 ### 步骤 1- 评估(必须在响应中明确展示)
 针对以下每个技能，陈述:[技能名]- 是/否 -[理由]
@@ -36,6 +39,20 @@ Skills(load-rpc)
 """
 
 def main():
+    # 读取标准输入的 JSON 数据
+    if not sys.stdin.isatty():
+        try:
+            input_data = sys.stdin.read()
+            if input_data.strip():
+                jsonData = json.loads(input_data)
+
+                user_prompt = jsonData.get("prompt", "")
+                if user_prompt.strip().startswith("/"):
+                    sys.exit(0)
+        except json.JSONDecodeError as e:
+            sys.exit(0)
+    
+    # 输出预定义的提示内容
     print(prompt)
 
 if __name__ == '__main__':
