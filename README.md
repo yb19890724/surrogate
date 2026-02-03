@@ -152,7 +152,7 @@ surrogate/
 
 | Rule 文件              | 作用                  | 典型内容                        |
 |-----------------------|-----------------------|-----------------------------|
-| security.md           | 安全底线                  | 禁止泄漏密钥、避免注入/不安全操作等          |
+| security.md           | 安全底线               | 禁止泄漏密钥、避免注入/不安全操作等          |
 | coding-style.md       | 代码风格一致性              | 目录组织、命名、可读性等                |
 | testing.md            | 测试纪律                  | TDD/覆盖率目标/测试要求              |
 | git-workflow.md       | Git 流程规范              | 提交信息、分支/PR 习惯               |
@@ -162,14 +162,22 @@ surrogate/
 
 ### hooks/ (钩子)
 
-| 事件类型           | 触发时机                                          | 典型用途                                           |
-|------------------|--------------------------------------------------|------------------------------------------------|
-| PreToolUse       | 在工具成功完成后立即运行。                           | 创建工具参数之后和处理工具调用之前运行 , 来允许、拒绝或请求使用工具的权限         |
-| PostToolUse      | tool_input 和 tool_response  的确切模式取决于工具    | 权限检查、参数验证 ~ 日志记录、结果处理                          |
-| UserPromptSubmit | 输入  用户提交提示词前                               | 验证、修改提示词                                       |
-| PreCompact       | /compact 的内容。对于 auto                         | 即将运行压缩操作之前运行                                   |
-| SessionStart     | 会话开始                                           | 启动新会话或恢复现有会话时运行（目前在幕后启动新会话）                    |
-| SessionEnd       | 会话结束                                           | 对于清理任务、记录会话统计信息或保存会话状态很有用                      |
+| 场景 | 无 Hooks | 有 Hooks |
+|------|---------|----------|
+| 危险命令防护 | 每次手动检查 | 自动拦截并警告 |
+| 代码提交前检查 | 容易遗忘 | 自动触发检查 |
+| 操作日志记录 | 手动记录 | 自动记录所有操作 |
+| 输出后处理 | 手动处理 | 自动执行后续流程 |
+
+| 事件类型 | 触发时刻 | 典型用途 |
+|----------|----------|----------|
+| PreToolUse | 工具执行前 | 验证参数、拦截危险操作、修改输入 |
+| PostToolUse | 工具执行完成后 | 处理输出、记录日志、触发后续操作 |
+| UserPromptSubmit | 用户提交提示时 | 验证提示、预处理输入 |
+| PermissionRequest | 请求工具权限时 | 自动批准/拒绝权限请求 |
+| Stop | Claude 完成响应时 | 清理资源、生成报告 |
+| SubagentStop | 子代理完成时 | 处理子代理结果 |
+| SessionEnd | 会话终止时 | 最终清理、日志记录 |
 
 
 - 环境变量
@@ -213,6 +221,7 @@ alias claude-research='claude --system-prompt "$(cat ~/.claude/contexts/research
 
 ### 参考资料
 * 工程理解： https://github.com/affaan-m/everything-claude-code 
-* 汉化 https://mp.weixin.qq.com/s/BkqigXb1ugP4IBjiwRAGOA
+* 汉化： https://mp.weixin.qq.com/s/BkqigXb1ugP4IBjiwRAGOA
 * 上下文注入： https://x.com/affaanmustafa/status/2014040193557471352 
 * hooks机制详解： https://blog.csdn.net/qq_44810930/article/details/156146071
+* 工程化实践：  https://ruoyi.plus/practices/engineering/claude-code-hooks.html
